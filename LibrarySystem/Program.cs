@@ -5,31 +5,71 @@ namespace LibrarySystem {
     internal class Program {
         static User currentUser = null;
         static void Main(string[] args) {
-
-            while(currentUser is null) {
-                int status = Init();
+            while(true) {
+                Console.Clear();
+               int status = init();
                 if (status == 3) return;
+                else if (currentUser is not null)
+                    routeHandling();
             }
-            HandleUser();
-
-            Console.ReadKey();
         }
 
-        static void HandleUser() {
+        static void routeHandling() {
             if (currentUser is null) {
                 Messages.PrintMessage("Something Went Wrong Try Again Later!", MessagesStatus.Error);
                 return;
             }
+            Console.Clear();
+            if (currentUser.Role == 1)
+                adminHandling();
+            else
+                regUserHandling();
+            currentUser = null;
+        }
 
-
-            Console.WriteLine($"Hello, {currentUser.Name}!");
+        private static void regUserHandling() {
+            Messages.PrintMessage($"Welcome User, {currentUser.Name}", MessagesStatus.Intro);
 
         }
 
-        static int Init() {
+        private static void adminHandling() {
+            while(true) {
+                int choise = adminMenu(currentUser.Role);
+                if (choise == 5) {
+                    User.ShowAllUsers();
+                    Console.Clear();
+                } else if (choise == 8) return;
+            }
+
+
+        }
+
+        private static int adminMenu(int role) {
+            int choise = -1;
+            Messages.PrintMessage($"Welcome Admin, {currentUser.Name}", MessagesStatus.Intro);
+            while (choise < 1 || choise > 8) {
+                int i = 1;
+                Console.WriteLine($"  {i++}-Add Book");
+                Console.WriteLine($"  {i++}-Show All Books");
+                Console.WriteLine($"  {i++}-Show Books By Name");
+                Console.WriteLine($"  {i++}-Show Books For a User");
+                Console.WriteLine($"  {i++}-Show All Users");
+                Console.WriteLine($"  {i++}-Show All Users' Books");
+                Console.WriteLine($"  {i++}-Show Users By Name");
+                Console.WriteLine($"  {i++}-Sign Out");
+                Console.Write("\nEnter Your Choise: ");
+                if (!int.TryParse(Console.ReadLine(), out choise) || choise < 1 || choise > 8) {
+                    Messages.PrintMessage("Enter Valid Choise!", MessagesStatus.Error);
+                }
+            }
+            return choise;
+        }
+
+        static int init() {
             Messages.PrintMessage("Welcome Into The Library System", MessagesStatus.Intro);
             int choise = StartUpMenu();
             if (choise == 1) {
+                currentUser = User.Login();
                 return 1; 
             } else if (choise == 2) {
                currentUser = User.SignUp();
